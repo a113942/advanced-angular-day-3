@@ -25,7 +25,7 @@ const selectFeature = createFeatureSelector<DataStuffState>(featureName);
 
 const selectCustomersBranch = createSelector(selectFeature, (f) => f.customers);
 
-// 3. Helpers (optional)
+// 3. Helpers (optional) // selectAll and selectEntities are functions
 const {
   selectAll: selectAllCustomerEntityArray,
   selectEntities: selectCustomerEntities,
@@ -55,6 +55,22 @@ const selectCustomerLoadingInformation = createSelector(
     return result;
   },
 );
+
+const selectUniqueCustomerRoles = createSelector(
+  selectAllCustomerEntityArray,
+  (customers) => {
+    const roles = new Set<string>();
+    customers.forEach((cust) => cust.roles.forEach((role) => roles.add(role)));
+    return roles;
+  },
+);
+export const selectSortedUniqueCustomerRoles = createSelector(
+  selectUniqueCustomerRoles,
+  (roles) => {
+    return [...Array.from(roles).sort((lhs, rhs) => lhs.localeCompare(rhs))];
+  },
+);
+
 // 4. What your Components Need
 
 // if they are at the /crm url (the end of contains /crm)
@@ -106,7 +122,8 @@ type ApiResponseWithModes<T> = {
 export const selectCustomerListModel = createSelector(
   selectAllCustomerEntityArray,
   selectCustomerLoadingInformation,
-  (customers, loadModes) => {
+  selectSortedUniqueCustomerRoles,
+  (customers, loadModes, roles) => {
     const modes: LoadingModes = {
       ...loadModes,
       empty: !customers,
@@ -115,8 +132,9 @@ export const selectCustomerListModel = createSelector(
       const data: fromModels.CustomerSummaryListItem[] = customers.map(
         convertCustomerEntityToCustomerSummaryListItem,
       );
+
       const result: ApiResponseWithModes<fromModels.CustomerSummaryList> = {
-        data: { data },
+        data: { data, roles },
         modes,
       };
       return result;
@@ -142,18 +160,13 @@ export function convertCustomerEntityToCustomerSummaryListItem(
   return customer;
 }
 
+// export const selectCustomerRolesDupe = createSelector(
+//   selectAllCustomerEntityArray,
+//   (customer) => {
+//     const roles = new Set<string>(); // Set is an array that only allows you to add unique items
+//     customer.forEach((cust) => cust.roles.forEach((role) => roles.add(role)));
+//     return roles;
+//   },
+// );
+
 // Practice: Create a new selector function that returns a sorted list of all the roles (no duplicates!)
-const selectUniqueCustomerRoles = createSelector(
-  selectAllCustomerEntityArray,
-  (customers) => {
-    const roles = new Set<string>();
-    customers.forEach((cust) => cust.roles.forEach((role) => roles.add(role)));
-    return roles;
-  },
-);
-export const selectSortedUniqueCustomerRoles = createSelector(
-  selectUniqueCustomerRoles,
-  (roles) => {
-    return [...Array.from(roles).sort((lhs, rhs) => lhs.localeCompare(rhs))];
-  },
-);

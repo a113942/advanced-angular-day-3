@@ -15,6 +15,9 @@ import { AlertComponent, CoreUiModule } from '@ht/core-ui';
 import { ModesComponent } from './containers/modes/modes.component';
 import { SharedModule } from '@ht/shared';
 import { DataStuffEffects } from './state/effects/data-stuff.effects';
+import { RoleFilterComponent } from './components/role-filter/role-filter.component';
+import { CompaniesComponent } from './containers/companies/companies.component';
+import { ReactiveFormsModule } from '@angular/forms';
 const routes: Routes = [
   {
     path: '',
@@ -23,6 +26,10 @@ const routes: Routes = [
       {
         path: 'modes',
         component: ModesComponent,
+      },
+      {
+        path: 'companies',
+        component: CompaniesComponent,
       },
       {
         path: 'crm',
@@ -52,6 +59,7 @@ const routes: Routes = [
     RouterModule.forChild(routes),
     StoreModule.forFeature(featureName, reducers),
     AlertComponent,
+    ReactiveFormsModule,
     SharedModule,
     EffectsModule.forFeature([
       CustomerEffects,
@@ -67,6 +75,8 @@ const routes: Routes = [
     CustomerListComponent,
     CustomerDetailsComponent,
     ModesComponent,
+    RoleFilterComponent,
+    CompaniesComponent,
   ],
 })
 export class DataStuffModule {}
